@@ -2,6 +2,8 @@ const ApiError = require('../error/ApiError')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const {User, Rating} = require('../models/models')
+const uuid = require('uuid')
+const path = require('path')
 
 const generateJwt = (id, email, role) => {
     return jwt.sign(
@@ -44,6 +46,20 @@ class UserController {
     async check(req, res, next) {
         const token = generateJwt(req.user.id, req.user.email, req.user.role)
         return res.json({token})
+    }
+    async uploadImg(req, res, next) {
+        try {
+            const {img} = req.files
+            let filename = uuid.v4() + '.jpg'
+            img.mv(path.resolve(__dirname, '..', 'static', filename))
+            const user = await User.findOne({ where: { id: user_id } });
+            user.avatar = filename;
+            await user.save();
+            return res.json({ message: 'Avatar updated successfully' });
+
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
     }
 }
 

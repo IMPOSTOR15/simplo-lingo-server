@@ -20,7 +20,10 @@ const User = sequelize.define('User', {
       type: DataTypes.TEXT,
       allowNull: false,
       defaultValue: 'user'
-    }
+    },
+    avatar: {
+      type: DataTypes.STRING,
+    },
   }, { 
     timestamps: false,
     tableName: 'user' 
@@ -50,9 +53,6 @@ const User = sequelize.define('User', {
       type: DataTypes.TEXT,
       defaultValue: 0,
       allowNull: false
-    },
-    answers_id: {
-      type: DataTypes.BIGINT,
     },
     correct_answer: {
         type: DataTypes.TEXT,
