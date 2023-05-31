@@ -58,8 +58,8 @@ const User = sequelize.define('User', {
       defaultValue: 0,
       allowNull: false
     },
-    correct_answer: {
-        type: DataTypes.TEXT,
+    correct_answer_id: {
+        type: DataTypes.BIGINT,
     },
   }, { 
     timestamps: false,
@@ -79,10 +79,13 @@ const User = sequelize.define('User', {
     question_id: {
       type: DataTypes.BIGINT,
       allowNull: false
+    },
+    is_correct: {
+      type: DataTypes.BOOLEAN,
     }
-  }, { 
+  }, {
     timestamps: false,
-    tableName: 'answers' 
+    tableName: 'answers'
   });
   
   const SolvedQuestion = sequelize.define('SolvedQuestion', {

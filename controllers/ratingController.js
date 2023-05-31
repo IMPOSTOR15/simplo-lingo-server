@@ -1,4 +1,4 @@
-const {Rating} = require('../models/models')
+const {Rating, Question, Answer} = require('../models/models')
 const ApiError = require('../error/ApiError')
 const sequelize = require('../db')
 
@@ -20,7 +20,6 @@ class RatingController {
                 console.log('No rating found for this user');
                 return;
             }
-    
             rating.points += earned_points;
             rating.total_solved += solved_qestion_count;
     
@@ -37,6 +36,24 @@ class RatingController {
         console.log(user_id)
         const rating = await Rating.findOne({where: {user_id}})
         return res.json(rating)
+    }
+
+    async getCorrectAnswer(req, res, next) {
+        let {qestion_id, answer_id} = req.body
+        const currentQestion = await Question.findOne({where: {id: qestion_id}})
+        const currentAnswer = await Answer.findOne({where: {id: answer_id}})
+        // console.log('qestion_id ' + qestion_id);
+        // console.log('answer_id ' + answer_id);
+        // console.log(currentQestion);
+
+        if (answer_id === currentQestion.correct_answer_id && currentAnswer.is_correct) {
+            console.log(true);
+            
+        }
+        return res.json({
+            "is correct": currentAnswer.is_correct,
+            "currentQestion.id": currentQestion.id
+        })
     }
 }
 
