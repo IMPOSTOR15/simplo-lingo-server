@@ -38,22 +38,8 @@ class QuestionController {
     }
     async getOneById(req, res) {
         const {id} = req.params
-        console.log(id);
-        let question = null
-        if (id === 'easy' || 'medium' || 'hard') {
-            let dificult = id
-            question = await Question.findOne(
-                {
-                    where: {dificult},
-                }
-            )
-        } else {
-            question = await Question.findOne(
-                {
-                    where: {id},
-                }
-            )
-        }
+        const question = await Question.findOne({ where: {id}}
+        )
         return res.json(question)
     }
     async getNotSolved(req, res) {

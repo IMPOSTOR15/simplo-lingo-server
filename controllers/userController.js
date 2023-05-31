@@ -13,6 +13,16 @@ const generateJwt = (id, email, role) => {
     )
 }
 class UserController {
+    async getUserData(req, res, next) {
+        const {id} = req.body
+        try {
+            const user = await User.findOne({where: {id}})
+            return res.json({user})
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+        
+    }
     async registration(req, res, next) {
         const {email, password, role} = req.body
         if (!email || !password) {
@@ -47,16 +57,25 @@ class UserController {
         const token = generateJwt(req.user.id, req.user.email, req.user.role)
         return res.json({token})
     }
-    async uploadImg(req, res, next) {
+    
+    async editUser(req, res, next) {
         try {
+            const {id, name, email} = req.body
+            const user = await User.findOne({ where: { id: id } });
             const {img} = req.files
-            let filename = uuid.v4() + '.jpg'
-            img.mv(path.resolve(__dirname, '..', 'static', filename))
-            const user = await User.findOne({ where: { id: user_id } });
-            user.avatar = filename;
+            if (img) {
+                let filename = uuid.v4() + '.jpg'
+                img.mv(path.resolve(__dirname, '..', 'static', filename))
+                user.avatar = filename;
+            }
+            if (name) {
+                user.name = name
+            }
+            if (email) {
+                user.email = email
+            }
             await user.save();
-            return res.json({ message: 'Avatar updated successfully' });
-
+            return res.json({ message: 'correct' });
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }

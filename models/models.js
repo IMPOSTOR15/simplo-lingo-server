@@ -21,8 +21,12 @@ const User = sequelize.define('User', {
       allowNull: false,
       defaultValue: 'user'
     },
+    name: {
+      type: DataTypes.TEXT,
+      unique: true
+    },
     avatar: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
     },
   }, { 
     timestamps: false,
