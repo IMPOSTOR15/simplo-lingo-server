@@ -39,21 +39,17 @@ class RatingController {
     }
 
     async getCorrectAnswer(req, res, next) {
-        let {qestion_id, answer_id} = req.body
+        let {qestion_id, answer_id, user_id} = req.body
         const currentQestion = await Question.findOne({where: {id: qestion_id}})
         const currentAnswer = await Answer.findOne({where: {id: answer_id}})
-        // console.log('qestion_id ' + qestion_id);
-        // console.log('answer_id ' + answer_id);
-        // console.log(currentQestion);
-
+        const userRating = await Rating.findOne({where: {user_id}})
         if (answer_id === currentQestion.correct_answer_id && currentAnswer.is_correct) {
-            console.log(true);
-            
+            userRating.total_solved = +userRating.total_solved + 1
+            userRating.points = +userRating.points + +currentQestion.points
+            userRating.save()
         }
-        return res.json({
-            "is correct": currentAnswer.is_correct,
-            "currentQestion.id": currentQestion.id
-        })
+
+        return res.json(userRating)
     }
 }
 
