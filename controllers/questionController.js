@@ -39,12 +39,6 @@ class QuestionController {
         const solvedByuserQestionsId = await SolvedQuestion.findAll({where: {solved_by_user: user_id}})
 
         let ids = solvedByuserQestionsId.map(question => question.question_id);
-        console.log(ids);
-        let solvedByUserQuestions = await Question.findAll({where: {
-            id: {
-                [Op.in]: ids
-              }
-        }})
 
         questions = questions.map(question => {
             question.dataValues.solvedByUser = ids.includes(question.id);
@@ -53,6 +47,17 @@ class QuestionController {
 
 
         return res.json(questions)
+    }
+    async checkQuestionSolved(req, res, next) {
+        let {user_id, question_id} = req.body
+        const solvedByuserQestionsId = await SolvedQuestion.findAll({where: {solved_by_user: user_id}})
+        let ids = solvedByuserQestionsId.map(question => question.question_id);
+
+        if (ids.includes(question_id)) {
+            return res.json({isSolved: true})
+        } else {
+            return res.json({isSolved: false})
+        }
     }
 
     async getOneByDificult(req, res) {

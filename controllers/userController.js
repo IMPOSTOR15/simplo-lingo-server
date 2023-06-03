@@ -59,7 +59,7 @@ class UserController {
     }
     
     async editUser(req, res, next) {
-        // try {
+        try {
             const {id, name, email} = req.body
             const user = await User.findOne({ where: { id: id } });
             if (req.body.img !== "null") {
@@ -76,9 +76,9 @@ class UserController {
             }
             await user.save();
             return res.json({ message: 'correct' });
-        // } catch (e) {
+        } catch (e) {
             next(ApiError.badRequest(e.message))
-        // }
+        }
     }
 }
 
