@@ -9,7 +9,7 @@ class AnswerController {
             const {question_id, AnswersObj} = req.body
             let answersArr = []
             for (var key in AnswersObj) {
-                answersArr.push(await Answer.create({question_id, answer: AnswersObj[key]}))
+                answersArr.push(await Answer.create({question_id, answer: AnswersObj[key], is_correct: false}))
             }   
             
             return res.json(answersArr)

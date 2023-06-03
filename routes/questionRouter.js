@@ -4,7 +4,7 @@ const questionController = require('../controllers/questionController')
 
 router.post('/', questionController.create)
 router.post('/notsolved', questionController.getNotSolved)
-router.post('/solved_filter', questionController.getAllWithSolvedMarker)
+router.post('/solved_theme_filter', questionController.getAllWithSolvedMarkerAndThemeBySort)
 router.post('/check_solved', questionController.checkQuestionSolved)
 
 router.get('/randome', questionController.getRandome)

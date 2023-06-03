@@ -51,12 +51,15 @@ const User = sequelize.define('User', {
       type: DataTypes.TEXT,
     },
     dificult: {
-        type: DataTypes.TEXT,
+      type: DataTypes.TEXT,
     },
     points: {
       type: DataTypes.TEXT,
       defaultValue: 0,
       allowNull: false
+    },
+    theme: {
+      type: DataTypes.TEXT,
     },
     correct_answer_id: {
         type: DataTypes.BIGINT,
@@ -130,8 +133,8 @@ const User = sequelize.define('User', {
   });
   
   // Определение отношений
-  Question.hasMany(Answer, { foreignKey: 'question_id' });
-  Answer.belongsTo(Question, { foreignKey: 'id' });
+  Question.hasMany(Answer, { foreignKey: 'id' });
+  Answer.belongsTo(Question, { foreignKey: 'question_id' });
   
   User.hasMany(SolvedQuestion, { foreignKey: 'solved_by_user' });
   SolvedQuestion.belongsTo(User, { foreignKey: 'solved_by_user' });

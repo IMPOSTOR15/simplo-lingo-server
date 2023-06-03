@@ -27,20 +27,27 @@ class QuestionController {
         return res.json(questions)
     }
 
-    async getAllWithSolvedMarker(req, res) {
-        let {dificult, user_id} = req.body
+    async getAllWithSolvedMarkerAndThemeBySort(req, res) {
+        let {dificult, theme, user_id} = req.body
         let questions 
-        if (dificult) {
+        if (dificult && theme) {
+            questions = await Question.findAndCountAll({where: {dificult, theme}})
+        } 
+        if (dificult && !theme) {
             questions = await Question.findAndCountAll({where: {dificult}})
-        } else {
-            questions = await Question.findAll()
+        }
+        if (!dificult && theme) {
+            questions = await Question.findAndCountAll({where: {theme}})
+        }
+        if (!dificult && !theme) {
+            questions = await Question.findAndCountAll()
         }
 
         const solvedByuserQestionsId = await SolvedQuestion.findAll({where: {solved_by_user: user_id}})
 
         let ids = solvedByuserQestionsId.map(question => question.question_id);
 
-        questions = questions.map(question => {
+        questions.rows = questions.rows.map(question => {
             question.dataValues.solvedByUser = ids.includes(question.id);
             return question;
         });
@@ -62,7 +69,6 @@ class QuestionController {
 
     async getOneByDificult(req, res) {
         const {dificult} = req.params
-        console.log(dificult);
         const question = await Question.findOne(
             {
                 where: {dificult},
