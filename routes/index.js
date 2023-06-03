@@ -10,7 +10,7 @@ router.use('/user', userRouter)
 router.use('/question', questionRouter)
 router.use('/rating', ratingRouter)
 router.use('/answer', answerRouter)
-// router.use('/solved_question', solvedQuestionRouter)
+router.use('/solved_question', solvedQuestionRouter)
 
 
 module.exports = router

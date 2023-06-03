@@ -1,4 +1,4 @@
-const {Rating, Question, Answer} = require('../models/models')
+const {Rating, Question, Answer, SolvedQuestion} = require('../models/models')
 const ApiError = require('../error/ApiError')
 const sequelize = require('../db')
 
@@ -39,17 +39,24 @@ class RatingController {
     }
 
     async getCorrectAnswer(req, res, next) {
-        let {qestion_id, answer_id, user_id} = req.body
-        const currentQestion = await Question.findOne({where: {id: qestion_id}})
-        const currentAnswer = await Answer.findOne({where: {id: answer_id}})
-        const userRating = await Rating.findOne({where: {user_id}})
-        if (answer_id === currentQestion.correct_answer_id && currentAnswer.is_correct) {
-            userRating.total_solved = +userRating.total_solved + 1
-            userRating.points = +userRating.points + +currentQestion.points
-            userRating.save()
-        }
+        try {
+            let {qestion_id, answer_id, user_id} = req.body
+            const currentQestion = await Question.findOne({where: {id: qestion_id}})
+            const currentAnswer = await Answer.findOne({where: {id: answer_id}})
+            const userRating = await Rating.findOne({where: {user_id}})
+            
+            if (answer_id === currentQestion.correct_answer_id && currentAnswer.is_correct) {
+                userRating.total_solved = +userRating.total_solved + 1
+                userRating.points = +userRating.points + +currentQestion.points
+                userRating.save()
+                SolvedQuestion.create({question_id: currentQestion.id, solved_by_user: user_id})
+            }
 
-        return res.json(userRating)
+            return res.json(userRating)
+
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
     }
 }
 

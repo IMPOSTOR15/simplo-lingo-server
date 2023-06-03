@@ -1,4 +1,4 @@
-const {Question} = require('../models/models')
+const {Question, SolvedQuestion} = require('../models/models')
 const ApiError = require('../error/ApiError')
 const sequelize = require('../db')
 const { Op } = require('sequelize');
@@ -26,6 +26,35 @@ class QuestionController {
 
         return res.json(questions)
     }
+
+    async getAllWithSolvedMarker(req, res) {
+        let {dificult, user_id} = req.body
+        let questions 
+        if (dificult) {
+            questions = await Question.findAndCountAll({where: {dificult}})
+        } else {
+            questions = await Question.findAll()
+        }
+
+        const solvedByuserQestionsId = await SolvedQuestion.findAll({where: {solved_by_user: user_id}})
+
+        let ids = solvedByuserQestionsId.map(question => question.question_id);
+        console.log(ids);
+        let solvedByUserQuestions = await Question.findAll({where: {
+            id: {
+                [Op.in]: ids
+              }
+        }})
+
+        questions = questions.map(question => {
+            question.dataValues.solvedByUser = ids.includes(question.id);
+            return question;
+        });
+
+
+        return res.json(questions)
+    }
+
     async getOneByDificult(req, res) {
         const {dificult} = req.params
         console.log(dificult);
