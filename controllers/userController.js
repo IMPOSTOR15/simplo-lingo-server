@@ -59,11 +59,11 @@ class UserController {
     }
     
     async editUser(req, res, next) {
-        try {
+        // try {
             const {id, name, email} = req.body
             const user = await User.findOne({ where: { id: id } });
-            const {img} = req.files
-            if (img) {
+            if (req.body.img !== "null") {
+                const {img} = req.files
                 let filename = uuid.v4() + '.jpg'
                 img.mv(path.resolve(__dirname, '..', 'static', filename))
                 user.avatar = filename;
@@ -76,9 +76,9 @@ class UserController {
             }
             await user.save();
             return res.json({ message: 'correct' });
-        } catch (e) {
+        // } catch (e) {
             next(ApiError.badRequest(e.message))
-        }
+        // }
     }
 }
 
