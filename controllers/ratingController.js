@@ -1,6 +1,6 @@
-const {Rating, Question, Answer, SolvedQuestion} = require('../models/models')
+const {Rating, Question, Answer, SolvedQuestion, User} = require('../models/models')
 const ApiError = require('../error/ApiError')
-const sequelize = require('../db')
+const { Sequelize } = require('sequelize');
 
 class RatingController {
     async initialCreate(user_id) {
@@ -13,7 +13,6 @@ class RatingController {
     async updateRating(req, res, next) {
         const {user_id, earned_points, solved_qestion_count} = req.body
         try {
-            // Находим запись рейтинга пользователя
             const rating = await Rating.findOne({ where: { user_id} });
     
             if (!rating) {
@@ -23,7 +22,6 @@ class RatingController {
             rating.points += earned_points;
             rating.total_solved += solved_qestion_count;
     
-            // Сохраняем обновленную запись
             await rating.save();
             return res.json(rating)
     
@@ -54,6 +52,30 @@ class RatingController {
 
             return res.json(userRating)
 
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+    async getLeaderboardData(req, res, next) {
+        try {
+            const leaderboard = await User.findAll({
+                attributes: ['name', 'avatar'],
+                include: [{
+                    model: Rating,
+                    as: 'Rating',
+                    required: true,
+                    attributes: ['points', 'total_solved'],
+                    where: {
+                        points: {
+                            [Sequelize.Op.gt]: 0
+                        }
+                    }
+                }],
+                order: [[{ model: Rating, as: 'Rating' }, 'points', 'DESC']],
+                limit: 100
+            });
+            
+            return res.json(leaderboard);
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }
