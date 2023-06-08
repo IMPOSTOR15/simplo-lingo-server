@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken')
 const {User, Rating} = require('../models/models')
 const uuid = require('uuid')
 const path = require('path')
+const resizeImage = require('../additionalFunctions/imgResizer');
 
 const generateJwt = (id, email, role) => {
     return jwt.sign(
@@ -64,16 +65,27 @@ class UserController {
             const user = await User.findOne({ where: { id: id } });
             if (req.body.img !== "null") {
                 const {img} = req.files
-                let filename = uuid.v4() + '.jpg'
+                let fileId = uuid.v4()
+                let filename = fileId + '.jpg'
+                let smallfilename = fileId + '-small.jpg'
                 img.mv(path.resolve(__dirname, '..', 'static', filename))
+                try {
+                    await resizeImage(path.join(__dirname, '..', 'static', filename), path.join(__dirname, '..', 'static', smallfilename), 20)
+                    console.log('Image resizing succeeded');
+                } catch (err) {
+                    console.error(`Error during image resizing: ${err}`);
+                }
                 user.avatar = filename;
             }
+
             if (name) {
                 user.name = name
             }
+
             if (email) {
                 user.email = email
             }
+
             await user.save();
             return res.json({ message: 'correct' });
         } catch (e) {

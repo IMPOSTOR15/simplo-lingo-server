@@ -47,10 +47,13 @@ class RatingController {
                 userRating.total_solved = +userRating.total_solved + 1
                 userRating.points = +userRating.points + +currentQestion.points
                 userRating.save()
-                SolvedQuestion.create({question_id: currentQestion.id, solved_by_user: user_id})
+                SolvedQuestion.create(
+                    {question_id: currentQestion.id, solved_by_user: user_id}
+                )
+                return res.json({isCorrect: true})
+            } else {
+                return res.json({isCorrect: false})
             }
-
-            return res.json(userRating)
 
         } catch (e) {
             next(ApiError.badRequest(e.message))
