@@ -5,12 +5,13 @@ const answerRouter = require('./answerRouter')
 const questionRouter = require("./questionRouter")
 const solvedQuestionRouter = require('./solvedQuestionRouter')
 const ratingRouter = require('./ratingRouter')
-
+const achivementRouter = require('./achivementRouter')
 router.use('/user', userRouter)
 router.use('/question', questionRouter)
 router.use('/rating', ratingRouter)
 router.use('/answer', answerRouter)
 router.use('/solved_question', solvedQuestionRouter)
+router.use('/achivements', achivementRouter)
 
 
 module.exports = router

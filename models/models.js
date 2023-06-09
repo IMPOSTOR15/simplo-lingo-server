@@ -131,6 +131,50 @@ const User = sequelize.define('User', {
     timestamps: false,
     tableName: 'rating' 
   });
+
+  const Achievements = sequelize.define('Achievements', {
+    id: {
+      type: DataTypes.BIGINT,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    name: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
+    rare: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
+    photo: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
+    condition: {
+      type: DataTypes.TEXT
+    },
+    pointsReward: {
+      type: DataTypes.BIGINT
+    }
+  })
+  const User_achievements = sequelize.define('User_achievements', {
+    id: {
+      type: DataTypes.BIGINT,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    achievement_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false
+    },
+    user_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false
+    },
+    isClaimed: {
+      type: DataTypes.BOOLEAN,
+    }
+  })
   
   // Определение отношений
   Question.hasMany(Answer, { foreignKey: 'id' });
@@ -145,10 +189,25 @@ const User = sequelize.define('User', {
   SolvedQuestion.belongsTo(Question, { foreignKey: 'question_id' });
   Question.hasMany(SolvedQuestion, { foreignKey: 'question_id' });
 
+  SolvedQuestion.belongsTo(User, { foreignKey: 'solved_by_user' });
+  User.hasMany(SolvedQuestion, { foreignKey: 'solved_by_user' });
+
+  Achievements.hasMany(User_achievements, {foreignKey: 'achievement_id'})
+  User_achievements.belongsTo(Achievements, {foreignKey: 'achievement_id'})
+
+  User.hasMany(User_achievements, { foreignKey: 'user_id' });
+  User_achievements.belongsTo(User, { foreignKey: 'user_id' })
+
+  sequelize.sync()
+  .then(() => console.log('Database & tables created!'))
+  .catch(error => console.log(error));
+
 module.exports = {
     User,
     Question,
     Answer,
     SolvedQuestion,
     Rating,
+    Achievements,
+    User_achievements
 }

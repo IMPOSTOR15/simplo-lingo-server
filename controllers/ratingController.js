@@ -1,6 +1,7 @@
-const {Rating, Question, Answer, SolvedQuestion, User} = require('../models/models')
+const {Rating, Question, Answer, SolvedQuestion, User, Achievements, User_achievements} = require('../models/models')
 const ApiError = require('../error/ApiError')
 const { Sequelize } = require('sequelize');
+const checkAchivements = require('../additionalFunctions/achivementsAdditionalFunctions');
 
 class RatingController {
     async initialCreate(user_id) {
@@ -50,6 +51,7 @@ class RatingController {
                 SolvedQuestion.create(
                     {question_id: currentQestion.id, solved_by_user: user_id}
                 )
+                await checkAchivements(userRating)
                 return res.json({isCorrect: true})
             } else {
                 return res.json({isCorrect: false})
@@ -59,6 +61,9 @@ class RatingController {
             next(ApiError.badRequest(e.message))
         }
     }
+
+    
+
     async getLeaderboardData(req, res, next) {
         try {
             const leaderboard = await User.findAll({
