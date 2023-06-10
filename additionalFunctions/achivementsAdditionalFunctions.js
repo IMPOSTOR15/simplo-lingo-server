@@ -18,17 +18,18 @@ const checkAchivements = async (user_rating) => {
     }
 }
 const claimAchivement = async (achievement_id, user_id) => {
-    try {
-        const currentAchivement = await Achievements.findOne({where: {id: achievement_id}})
-        const currentUserAchivement = await User_achievements.findOne({where: {achievement_id, user_id}})
-        const currentUserRating = await Rating.findOne({where: {user_id}})
+    const currentAchivement = await Achievements.findOne({where: {id: achievement_id}})
+    const currentUserAchivement = await User_achievements.findOne({where: {achievement_id, user_id}})
+    const currentUserRating = await Rating.findOne({where: {user_id}})
+    if (currentAchivement.pointsReward) {
+        console.log(parseInt(currentUserRating.points), parseInt(currentAchivement.pointsReward));
         currentUserRating.points = parseInt(currentUserRating.points) + parseInt(currentAchivement.pointsReward)
         currentUserRating.save()
-        currentUserAchivement.isClaimed = true
-        currentUserAchivement.save()
-    } catch (err) {
-        console.log(err);
     }
+    
+    currentUserAchivement.isClaimed = true
+    currentUserAchivement.save()
+
     
 }
 module.exports = {

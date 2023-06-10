@@ -38,18 +38,19 @@ class AchivementController {
         const answers = await Achievements.findAll()
         return res.json(answers)
     }
-    async getUserAchivements(res, req) {
+    async getUserAchivements(req, res) {
         const {user_id} = req.params
         const userAchivements =  await User_achievements.findAll({
-            attributes: ['achivement_id'],
+            attributes: ['achievement_id', 'isClaimed'],
             where: {user_id}
         })
-
+    
         return res.json(userAchivements)
     }
     async claimAchivementByUser(req, res, next) {
         try {
             const {user_id, achivement_id} = req.body
+            console.log('user_id',user_id,'achivement_id',achivement_id);
             await claimAchivement(achivement_id, user_id)
             return res.json('succesfuly')
         } catch (err) {
