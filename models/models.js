@@ -1,5 +1,5 @@
 const sequelize = require('../db')
-const {DataTypes} = require('sequelize')
+const {DataTypes, BIGINT} = require('sequelize')
 
 const User = sequelize.define('User', {
     id: {
@@ -175,6 +175,23 @@ const User = sequelize.define('User', {
       type: DataTypes.BOOLEAN,
     }
   })
+
+  const Activity_tracker = sequelize.define('activity_tracker', {
+    id: {
+      type: DataTypes.BIGINT,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    user_id: {
+      type: DataTypes.BIGINT,
+    },
+    date: {
+      type: DataTypes.DATE,
+    },
+    total_solved: {
+      type: DataTypes.BIGINT,
+    }
+  })
   
   // Определение отношений
   Question.hasMany(Answer, { foreignKey: 'id' });
@@ -198,7 +215,11 @@ const User = sequelize.define('User', {
   User.hasMany(User_achievements, { foreignKey: 'user_id' });
   User_achievements.belongsTo(User, { foreignKey: 'user_id' })
 
+  User.hasMany(Activity_tracker, { foreignKey: 'user_id' });
+  Activity_tracker.belongsTo(User, { foreignKey: 'user_id' })
+
   sequelize.sync()
+
   .then(() => console.log('Database & tables created!'))
   .catch(error => console.log(error));
 
@@ -209,5 +230,6 @@ module.exports = {
     SolvedQuestion,
     Rating,
     Achievements,
-    User_achievements
+    User_achievements,
+    Activity_tracker
 }
