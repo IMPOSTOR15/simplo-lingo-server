@@ -1,7 +1,7 @@
 const {Rating, Question, Answer, SolvedQuestion, User, Achievements, User_achievements} = require('../models/models')
 const ApiError = require('../error/ApiError')
 const { Sequelize } = require('sequelize');
-const checkAchivements = require('../additionalFunctions/achivementsAdditionalFunctions');
+const {checkAchivements} = require('../additionalFunctions/achivementsAdditionalFunctions');
 
 class RatingController {
     async initialCreate(user_id) {
@@ -58,6 +58,7 @@ class RatingController {
             }
 
         } catch (e) {
+            console.log(e);
             next(ApiError.badRequest(e.message))
         }
     }

@@ -155,6 +155,9 @@ const User = sequelize.define('User', {
     },
     pointsReward: {
       type: DataTypes.BIGINT
+    },
+    description: {
+      type: DataTypes.TEXT
     }
   })
   const User_achievements = sequelize.define('User_achievements', {
