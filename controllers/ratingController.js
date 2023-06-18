@@ -2,6 +2,7 @@ const {Rating, Question, Answer, SolvedQuestion, User, Achievements, User_achiev
 const ApiError = require('../error/ApiError')
 const { Sequelize } = require('sequelize');
 const {checkAchivements} = require('../additionalFunctions/achivementsAdditionalFunctions');
+const { addActivity } = require('./activityController');
 
 class RatingController {
     async initialCreate(user_id) {
@@ -51,7 +52,10 @@ class RatingController {
                 SolvedQuestion.create(
                     {question_id: currentQestion.id, solved_by_user: user_id}
                 )
+                await addActivity(user_id)
+                
                 await checkAchivements(userRating)
+
                 return res.json({isCorrect: true})
             } else {
                 return res.json({isCorrect: false})
