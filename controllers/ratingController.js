@@ -47,7 +47,7 @@ class RatingController {
                 const currentAnswer = await Answer.findOne({where: {id: answer_id}})
                 const userRating = await Rating.findOne({where: {user_id}})
                 
-                if (answer_id === currentQestion.correct_answer_id && currentAnswer.is_correct) {
+                if (currentAnswer.is_correct) {
                     userRating.total_solved = +userRating.total_solved + 1
                     userRating.points = +userRating.points + +currentQestion.points
                     userRating.save()
@@ -75,7 +75,6 @@ class RatingController {
                 const currentAnswer = await Answer.findOne({where: {question_id: qestion_id, is_correct: true}})
                 const userRating = await Rating.findOne({where: {user_id}})
                 console.log("currentAnswer", currentAnswer.answer);
-                // console.log("answers",answers);
                 let userAnswersStr = ''
                 for (let i = 0; i < answers.length; i++) {
                     userAnswersStr += answers[i].text + ', '
