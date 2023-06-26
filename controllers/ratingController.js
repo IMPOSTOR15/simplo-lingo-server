@@ -39,32 +39,71 @@ class RatingController {
     }
 
     async getCorrectAnswer(req, res, next) {
-        try {
-            let {qestion_id, answer_id, user_id} = req.body
-            const currentQestion = await Question.findOne({where: {id: qestion_id}})
-            const currentAnswer = await Answer.findOne({where: {id: answer_id}})
-            const userRating = await Rating.findOne({where: {user_id}})
-            
-            if (answer_id === currentQestion.correct_answer_id && currentAnswer.is_correct) {
-                userRating.total_solved = +userRating.total_solved + 1
-                userRating.points = +userRating.points + +currentQestion.points
-                userRating.save()
-                SolvedQuestion.create(
-                    {question_id: currentQestion.id, solved_by_user: user_id}
-                )
-                await addActivity(user_id)
+        let {type} = req.body
+        if (type === "form") {
+            try {
+                let {qestion_id, answer_id, user_id} = req.body
+                const currentQestion = await Question.findOne({where: {id: qestion_id}})
+                const currentAnswer = await Answer.findOne({where: {id: answer_id}})
+                const userRating = await Rating.findOne({where: {user_id}})
                 
-                await checkAchivements(userRating)
-
-                return res.json({isCorrect: true})
-            } else {
-                return res.json({isCorrect: false})
+                if (answer_id === currentQestion.correct_answer_id && currentAnswer.is_correct) {
+                    userRating.total_solved = +userRating.total_solved + 1
+                    userRating.points = +userRating.points + +currentQestion.points
+                    userRating.save()
+                    SolvedQuestion.create(
+                        {question_id: currentQestion.id, solved_by_user: user_id}
+                    )
+                    await addActivity(user_id)
+                    
+                    await checkAchivements(userRating)
+    
+                    return res.json({isCorrect: true})
+                } else {
+                    return res.json({isCorrect: false})
+                }
+    
+            } catch (e) {
+                console.log(e);
+                next(ApiError.badRequest(e.message))
             }
-
-        } catch (e) {
-            console.log(e);
-            next(ApiError.badRequest(e.message))
         }
+        if (type === "drag") {
+            try {
+                let {qestion_id, answers, user_id} = req.body
+                const currentQestion = await Question.findOne({where: {id: qestion_id}})
+                const currentAnswer = await Answer.findOne({where: {question_id: qestion_id, is_correct: true}})
+                const userRating = await Rating.findOne({where: {user_id}})
+                console.log("currentAnswer", currentAnswer.answer);
+                // console.log("answers",answers);
+                let userAnswersStr = ''
+                for (let i = 0; i < answers.length; i++) {
+                    userAnswersStr += answers[i].text + ', '
+                }
+                userAnswersStr = userAnswersStr.slice(0, -2)
+                console.log(userAnswersStr);
+                console.log(userAnswersStr === currentAnswer.answer);
+                if (userAnswersStr === currentAnswer.answer) {
+                    userRating.total_solved = +userRating.total_solved + 1
+                    userRating.points = +userRating.points + +currentQestion.points
+                    userRating.save()
+                    SolvedQuestion.create(
+                        {question_id: currentQestion.id, solved_by_user: user_id}
+                    )
+                    await addActivity(user_id)
+                    
+                    await checkAchivements(userRating)
+    
+                    return res.json({isCorrect: true})
+                } else {
+                    return res.json({isCorrect: false})
+                }
+            } catch (e) {
+                console.log(e);
+                next(ApiError.badRequest(e.message))
+            }
+        }
+        
     }
 
     

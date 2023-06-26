@@ -1,11 +1,7 @@
 const {Activity_tracker} = require('../models/models')
 const ApiError = require('../error/ApiError')
-const sequelize = require('../db')
 const { Op } = require('sequelize');
-const uuid = require('uuid')
-const path = require('path')
-const resizeImage = require('../additionalFunctions/imgResizer');
-const { claimAchivement } = require('../additionalFunctions/achivementsAdditionalFunctions');
+
 
 class ActivityController {
     async addActivity(user_id) {
@@ -46,17 +42,6 @@ class ActivityController {
             next(ApiError.badRequest(e.message))
         }
     }
-    async getAllAchivements(req, res) {
-
-    }
-    async getUserAchivements(req, res) {
-
-    }
-    async claimAchivementByUser(req, res, next) {
-
-    }
-    
-
 }
 
 module.exports = new ActivityController()

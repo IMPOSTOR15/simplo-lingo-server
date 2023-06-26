@@ -1,4 +1,4 @@
-const {Answer} = require('../models/models')
+const {Answer, Question} = require('../models/models')
 const ApiError = require('../error/ApiError')
 const sequelize = require('../db')
 const { Op } = require('sequelize');
@@ -21,7 +21,12 @@ class AnswerController {
     async getAnswers(req, res) {
         let {question_id} = req.params
         console.log(question_id)
-        const answers = await Answer.findAll({where: {question_id}})
+        const currentQestion = await Question.findOne({where: {id: question_id}})
+        if (currentQestion.type === "drag") {
+            var answers = await Answer.findAll({where: {question_id, is_correct: false}})
+        } else {
+            var answers = await Answer.findAll({where: {question_id}})
+        }
         return res.json(answers)
     }
     
