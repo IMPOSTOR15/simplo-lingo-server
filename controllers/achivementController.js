@@ -50,7 +50,6 @@ class AchivementController {
     async claimAchivementByUser(req, res, next) {
         try {
             const {user_id, achivement_id} = req.body
-            console.log('user_id',user_id,'achivement_id',achivement_id);
             await claimAchivement(achivement_id, user_id)
             return res.json('succesfuly')
         } catch (err) {

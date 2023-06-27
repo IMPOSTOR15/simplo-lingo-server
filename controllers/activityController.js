@@ -7,7 +7,6 @@ class ActivityController {
     async addActivity(user_id) {
         const currentDate = new Date().setHours(0,0,0,0)
         const userActivity = await Activity_tracker.findOne({where: {date: {[Op.eq]: currentDate}, user_id}})
-        console.log("userActivity", userActivity);
         if (userActivity) {
             userActivity.total_solved = parseInt(userActivity.total_solved) + 1
             userActivity.save()

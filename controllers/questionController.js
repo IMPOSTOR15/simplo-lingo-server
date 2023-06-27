@@ -28,33 +28,31 @@ class QuestionController {
     }
 
     async getAllWithSolvedMarkerAndThemeBySort(req, res) {
-        let {dificult, theme, user_id} = req.body
-        let questions 
-        if (dificult && theme) {
-            questions = await Question.findAndCountAll({where: {dificult, theme}})
-        } 
-        if (dificult && !theme) {
-            questions = await Question.findAndCountAll({where: {dificult}})
-        }
-        if (!dificult && theme) {
-            questions = await Question.findAndCountAll({where: {theme}})
-        }
-        if (!dificult && !theme) {
-            questions = await Question.findAndCountAll()
-        }
-
+        let {dificult, theme, user_id, limit = 20, page = 1} = req.body
+        console.log(req.body);
+        let offset = (page - 1) * limit;
+    
+        let conditions = {};
+        if (dificult) conditions.dificult = dificult;
+        if (theme) conditions.theme = theme;
+    
+        let questions = await Question.findAndCountAll({where: conditions, limit, offset, order: [
+            ['id', 'ASC']
+          ]})
+        
+        console.log("questions", questions);
         const solvedByuserQestionsId = await SolvedQuestion.findAll({where: {solved_by_user: user_id}})
-
+    
         let ids = solvedByuserQestionsId.map(question => question.question_id);
-
+    
         questions.rows = questions.rows.map(question => {
             question.dataValues.solvedByUser = ids.includes(question.id);
             return question;
         });
-
-
-        return res.json(questions)
+    
+        return res.set('X-Total-Count', questions.count).json(questions)
     }
+    
     async checkQuestionSolved(req, res, next) {
         let {user_id, question_id} = req.body
         const solvedByuserQestionsId = await SolvedQuestion.findAll({where: {solved_by_user: user_id}})
@@ -78,8 +76,7 @@ class QuestionController {
     }
     async getOneById(req, res) {
         const {id} = req.params
-        const question = await Question.findOne({ where: {id}}
-        )
+        const question = await Question.findOne({ where: {id}})
         return res.json(question)
     }
     async getNotSolved(req, res) {

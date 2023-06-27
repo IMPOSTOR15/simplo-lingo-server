@@ -1,7 +1,5 @@
-const {Answer, Question} = require('../models/models')
+const {Answer, Question, SolvedQuestion} = require('../models/models')
 const ApiError = require('../error/ApiError')
-const sequelize = require('../db')
-const { Op } = require('sequelize');
 
 class AnswerController {
     async addAnswers(req, res, next) {
@@ -11,23 +9,53 @@ class AnswerController {
             for (var key in AnswersObj) {
                 answersArr.push(await Answer.create({question_id, answer: AnswersObj[key], is_correct: false}))
             }   
-            
             return res.json(answersArr)
-
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }
     }
     async getAnswers(req, res) {
         let {question_id} = req.params
-        console.log(question_id)
         const currentQestion = await Question.findOne({where: {id: question_id}})
-        if (currentQestion.type === "drag") {
-            var answers = await Answer.findAll({where: {question_id, is_correct: false}})
+        if (currentQestion) {
+            if (currentQestion.type === "drag") {
+                var answers = await Answer.findAll({attributes: ["id", "answer"], where: {question_id, is_correct: false}})
+                return res.json({answers: answers, type: currentQestion.type})
+            } 
+            if (currentQestion.type === "form") {
+                var answers = await Answer.findAll({attributes: ["id", "answer"], where: {question_id}})
+                return res.json({answers: answers, type: currentQestion.type})
+            }
         } else {
-            var answers = await Answer.findAll({where: {question_id}})
+            return res.json("no answer")
         }
-        return res.json(answers)
+    }
+
+    async getCorrectAnswers(req, res) {
+        try {
+            let {question_id, user_id} = req.body
+            const currentQestion = await Question.findOne({where: {id: question_id}})
+            const isQestionSolvedByUser = await SolvedQuestion.findOne({where: {question_id, solved_by_user: user_id}})
+            if (currentQestion && isQestionSolvedByUser) {
+                if (currentQestion.type === "drag") {
+                    var answers = await Answer.findAll({where: {question_id, is_correct: true}})
+                    return res.json({answers: answers, type: currentQestion.type})
+                } 
+                if (currentQestion.type === "form") {
+                    var answers = await Answer.findAll({
+                        attributes: ["id", "answer", "is_correct"],
+                        where: {question_id}
+                    })
+                    return res.json({answers: answers, type: currentQestion.type})
+                }
+            } else {
+                return res.json("no solved")
+            }
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+        
+        
     }
     
 

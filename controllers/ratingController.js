@@ -9,16 +9,15 @@ class RatingController {
         try {
             await Rating.create({user_id, points: 0, total_solved: 0})
         } catch (e) {
-            console.log('error in initial create');
+            console.log('error in initial rating create');
         }
     }
     async updateRating(req, res, next) {
         const {user_id, earned_points, solved_qestion_count} = req.body
         try {
             const rating = await Rating.findOne({ where: { user_id} });
-    
             if (!rating) {
-                console.log('No rating found for this user');
+                next(ApiError.badRequest('No rating found for this user'))
                 return;
             }
             rating.points += earned_points;
@@ -33,7 +32,6 @@ class RatingController {
     }
     async getUserRating(req, res) {
         let {user_id} = req.params
-        console.log(user_id)
         const rating = await Rating.findOne({where: {user_id}})
         return res.json(rating)
     }
@@ -64,7 +62,6 @@ class RatingController {
                 }
     
             } catch (e) {
-                console.log(e);
                 next(ApiError.badRequest(e.message))
             }
         }
@@ -74,14 +71,11 @@ class RatingController {
                 const currentQestion = await Question.findOne({where: {id: qestion_id}})
                 const currentAnswer = await Answer.findOne({where: {question_id: qestion_id, is_correct: true}})
                 const userRating = await Rating.findOne({where: {user_id}})
-                console.log("currentAnswer", currentAnswer.answer);
                 let userAnswersStr = ''
                 for (let i = 0; i < answers.length; i++) {
                     userAnswersStr += answers[i].text + ', '
                 }
                 userAnswersStr = userAnswersStr.slice(0, -2)
-                console.log(userAnswersStr);
-                console.log(userAnswersStr === currentAnswer.answer);
                 if (userAnswersStr === currentAnswer.answer) {
                     userRating.total_solved = +userRating.total_solved + 1
                     userRating.points = +userRating.points + +currentQestion.points
@@ -98,7 +92,6 @@ class RatingController {
                     return res.json({isCorrect: false})
                 }
             } catch (e) {
-                console.log(e);
                 next(ApiError.badRequest(e.message))
             }
         }
