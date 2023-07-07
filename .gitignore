@@ -1,3 +1,6 @@
 node_modules
 .env
 static
+dist
+data
+backup_simplolingo.sql
