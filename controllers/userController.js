@@ -47,6 +47,7 @@ class UserController {
             return next(ApiError.internal('Пользователь не найден'))
         }
         let comparePassword = bcrypt.compareSync(password, user.password)
+        console.log(comparePassword);
         if (!comparePassword) {
             return next(ApiError.internal('Неверный пароль'))
         }
@@ -88,6 +89,23 @@ class UserController {
 
             await user.save();
             return res.json({ message: 'correct' });
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+    async changePassword(req, res, next) {
+        try {
+            const { id, password } = req.body
+            const hashPassword = await bcrypt.hash(password, 5)
+            const user = await User.update({ password: hashPassword }, { where: { id: id } })
+
+            if (user[0] === 0) {
+                return next(ApiError.badRequest("Пользователь не найден"));
+            }
+
+            const token = generateJwt(user.id, user.email, user.role)
+            return res.json({token})
+            
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }
