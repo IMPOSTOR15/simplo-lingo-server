@@ -1,6 +1,6 @@
 node_modules
 .env
-static
+# static
 dist
 data
 backup_simplolingo.sql
