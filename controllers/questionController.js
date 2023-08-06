@@ -2,15 +2,30 @@ const {Question, SolvedQuestion} = require('../models/models')
 const ApiError = require('../error/ApiError')
 const sequelize = require('../db')
 const { Op } = require('sequelize');
+const { pushAnswers, pushAnswersDrag } = require('./answerController');
 
 class QuestionController {
     async create(req, res, next) {
         try {
-            const {title, type, text, points, dificult} = req.body
-            const question = await Question.create({title, type, text, points, dificult})
+            console.log(req.body);
+            const {title, type, text, points, dificult, theme, answersArr} = req.body.questionData
+            let question = await Question.create({title, type, text, points, dificult, correct_answer_id: null, theme})
+            let correctAnswer;
+            if (type === 'form') {
+                if (answersArr) {
+                    correctAnswer = await pushAnswers(question.id, answersArr)
+                    question = await question.update({ correct_answer_id: correctAnswer.id });
+                }
+            }
+            if (type === 'drag') {
+                if (answersArr) {
+                    correctAnswer = await pushAnswersDrag(question.id, answersArr)
+                    question = await question.update({ correct_answer_id: correctAnswer.id });
+                }
+            }
             return res.json(question)
-
         } catch (e) {
+            console.log(e);
             next(ApiError.badRequest(e.message))
         }
     }

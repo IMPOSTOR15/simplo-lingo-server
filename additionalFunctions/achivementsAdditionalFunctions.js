@@ -23,11 +23,11 @@ const claimAchivement = async (achievement_id, user_id) => {
     const currentUserRating = await Rating.findOne({where: {user_id}})
     if (currentAchivement.pointsReward) {
         currentUserRating.points = parseInt(currentUserRating.points) + parseInt(currentAchivement.pointsReward)
-        currentUserRating.save()
+        await currentUserRating.save()
     }
     
     currentUserAchivement.isClaimed = true
-    currentUserAchivement.save()
+    await currentUserAchivement.save()
 
     
 }

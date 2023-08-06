@@ -4,15 +4,24 @@ const ApiError = require('../error/ApiError')
 class AnswerController {
     async addAnswers(req, res, next) {
         try {
-            const {question_id, AnswersObj} = req.body
-            let answersArr = []
-            for (var key in AnswersObj) {
-                answersArr.push(await Answer.create({question_id, answer: AnswersObj[key], is_correct: false}))
-            }   
-            return res.json(answersArr)
+            const {question_id, answersArr} = req.body
+            let completeAnswersArr = []
+            await pushAnswers(question_id, answersArr)
+            return res.json(completeAnswersArr)
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }
+    }
+    async pushAnswers(question_id, answersArr) {
+        answersArr.map(async (elem) => {
+            await Answer.create({question_id, answer: elem.text, is_correct: elem.isCorrect})
+        })
+        return await Answer.findOne({where: {is_correct: true, question_id}})
+    }
+    async pushAnswersDrag(question_id, answersArr) {
+        await Answer.create({question_id, answer: answersArr[0].questionDragAllText, is_correct: false})
+        await Answer.create({question_id, answer: answersArr[0].questionDragCorrectText, is_correct: true})
+        return await Answer.findOne({where: {is_correct: true, question_id}})
     }
     async getAnswers(req, res) {
         let {question_id} = req.params
