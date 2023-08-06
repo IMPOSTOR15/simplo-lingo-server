@@ -25,19 +25,23 @@ class UserController {
         
     }
     async registration(req, res, next) {
-        const {email, password, role} = req.body
-        if (!email || !password) {
-            return next(ApiError.badRequest('Не задан пароль или логин'))
+        try {
+            const {email, password, role} = req.body
+            if (!email || !password) {
+                return next(ApiError.badRequest('Не задан пароль или логин'))
+            }
+            const candidate = await User.findOne({where: {email}})
+            if (candidate) {
+                return next(ApiError.badRequest('Пользователь уже существует'))
+            }
+            const hashPassword = await bcrypt.hash(password, 5)
+            const user = await User.create({email, role, password: hashPassword})
+            const rating = await Rating.create({user_id: user.id})
+            const token = generateJwt(user.id, user.email, user.role)
+            return res.json({token})
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
         }
-        const candidate = await User.findOne({where: {email}})
-        if (candidate) {
-            return next(ApiError.badRequest('Пользователь уже существует'))
-        }
-        const hashPassword = await bcrypt.hash(password, 5)
-        const user = await User.create({email, role, password: hashPassword})
-        const rating = await Rating.create({user_id: user.id})
-        const token = generateJwt(user.id, user.email, user.role)
-        return res.json({token})
     }
 
     async login(req, res, next) {
